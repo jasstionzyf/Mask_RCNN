@@ -21,6 +21,8 @@ import skimage.transform
 import urllib.request
 import shutil
 import warnings
+from PIL import Image as pil_image
+
 from distutils.version import LooseVersion
 
 # URL from which to download the latest COCO trained weights
@@ -355,14 +357,20 @@ class Dataset(object):
     def load_image(self, image_id):
         """Load the specified image and return a [H,W,3] Numpy array.
         """
-        # Load image
-        image = skimage.io.imread(self.image_info[image_id]['path'])
-        # If grayscale. Convert to RGB for consistency.
-        if image.ndim != 3:
-            image = skimage.color.gray2rgb(image)
-        # If has an alpha channel, remove it for consistency
-        if image.shape[-1] == 4:
-            image = image[..., :3]
+        # # Load image
+        # image = skimage.io.imread(self.image_info[image_id]['path'])
+        # # If grayscale. Convert to RGB for consistency.
+        # if image.ndim != 3:
+        #     image = skimage.color.gray2rgb(image)
+        # # If has an alpha channel, remove it for consistency
+        # if image.shape[-1] == 4:
+        #     image = image[..., :3]
+
+        img = pil_image.open(self.image_info[image_id]['path'])
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+
+        image=np.asarray(img)
         return image
 
     def load_mask(self, image_id):
